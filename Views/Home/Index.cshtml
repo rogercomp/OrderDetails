@@ -1,0 +1,123 @@
+﻿@using OrderDetails.Models;
+@model IEnumerable<Venda>
+
+@{
+    ViewData["Title"] = "Detalhamento de Pedidos";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Detalhamento</h1>
+</div>
+
+<table class="table">
+    @foreach (var group in Model.GroupBy(x => x.codPedido))
+    {
+        <tr class="group-header">
+            <td colspan="6">
+                <span class="h3">Pedido: @group.Key</span>
+            </td>
+        </tr>
+        <tr>
+            <th>Sexo</th>
+            <th>Peso</th>
+            <th>Vlr Venda</th>
+            <th>Ágio/Deságio</th>
+            <th></th>
+        </tr>
+        foreach (var item in group)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.sexo)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.peso)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.vlr_Venda)
+                </td>
+                <td>
+                    @if (item.vlr_AgioDesagio < 0)
+                    {
+                        <span style="color:red;">@item.vlr_AgioDesagio</span>
+                    }
+                    else if (item.vlr_AgioDesagio > 0)
+                    {
+                        <span style="color:green;">@item.vlr_AgioDesagio</span>
+                    }
+                    else
+                    {
+                        <span style="color:black;">@item.vlr_AgioDesagio</span>
+                    }
+                </td>
+            </tr>
+        }
+        <tr class="group-footer">
+            <td colspan="6">
+                <span class="label label-info">Pedido: @group.Key</span>
+                <span class="label label-success">Total Animais: @group.Count()</span>
+                <span class="label label-primary">
+                    Peso Total:
+                    @group.Sum(x => x.peso).ToString("N")
+                </span>
+                <span class="label label-primary">
+                    Valor Total:
+                    @group.Sum(x => x.vlr_Venda).ToString("C")
+                </span>
+                <span class="label label-primary">
+                    Valor Arroba: 15 Kg
+                </span>
+            </td>
+        </tr>
+
+        <tr class="group-footer">
+            <td colspan="6">
+                @{
+                    var machosAbatidos = group.Count(x => x.sexo == "M");
+                    double totalAnimais = Model.Count();
+                    var percM = (machosAbatidos / totalAnimais) * 100.00;
+                    var animaisAgio = group.Count(x => x.vlr_AgioDesagio > 0);
+                    var percAgio = (animaisAgio / totalAnimais) * 100.00;
+                    var animaisDesagio = group.Count(x => x.vlr_AgioDesagio < 0);
+                    var percDesagio = (animaisDesagio / totalAnimais) * 100.00;
+                    var vlrTotalAgio = group.Where(x => x.vlr_AgioDesagio > 0).Sum(x => x.vlr_AgioDesagio);
+                    var vlrTotalDesagio = group.Where(x => x.vlr_AgioDesagio < 0).Sum(x => x.vlr_AgioDesagio);
+
+                }
+                <span class="label label-success">Machos abatidos: @machosAbatidos</span>
+                <span class="label label-success">Percentual Machos abatidos: @percM.ToString("N2")</span>
+            </td>
+        </tr>
+        <tr class="group-footer">
+            <td colspan="6">
+                @{
+                    var femeasAbatidas = group.Count(x => x.sexo == "F");
+                    var percF = (femeasAbatidas / totalAnimais) * 100.00;
+                }
+                <span class="label label-success">Fêmeas abatidas: @femeasAbatidas</span>
+                <span class="label label-success">Percentual Fêmeas abatidas: @percF.ToString("N2")</span>
+            </td>
+        </tr>
+        <tr class="group-footer">
+            <td colspan="6">
+                <span class="label label-success">Animais Ágio: @animaisAgio</span>
+                <span class="label label-success">Percentual com Agio: @percAgio.ToString("N2")</span>
+            </td>
+        </tr>
+        <tr class="group-footer">
+            <td colspan="6">
+                <span class="label label-success">Animais Deságio: @animaisDesagio</span>
+                <span class="label label-success">Percentual com Deságio: @percDesagio.ToString("N2")</span>
+                
+            </td>
+        </tr>
+        <tr class="group-footer">
+            <td colspan="6">
+                <span class="label label-success">Valor Total Ágio: @vlrTotalAgio.ToString("C2")</span>
+                <span class="label label-success">Valor Total Deságio: @vlrTotalDesagio.ToString("C2")</span>
+            </td>
+        </tr>
+    }
+
+</table>
+
